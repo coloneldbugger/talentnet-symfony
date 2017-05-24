@@ -133,4 +133,32 @@ class User implements UserInterface
     {
     	return $this->updated;
     }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     *
+     * @return User
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param \DateTime $updated
+     *
+     * @return User
+     */
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
 }

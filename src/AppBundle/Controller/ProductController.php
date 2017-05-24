@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
 use AppBundle\Entity\Product;
+use AppBundle\Entity\Category;
 
 class ProductController extends FOSRestController
 {
@@ -57,10 +58,14 @@ class ProductController extends FOSRestController
 		$data = new Product;
 		$name = $request->get('name');
 		$sku = strtoupper($request->get('sku'));
-		$category = $request->get('category');
 		$quantity = $request->get('quantity');
 		$price = $request->get('price');
 		
+		$category = $this->getDoctrine()->getRepository('AppBundle:Category')->findOneBy(array('name'=>$request->get('category')));;
+		if(empty($category)){
+			$category = new Category();
+			$category->setName($request->get('category'));
+		}
 		if(empty($name) || empty($category) || empty($sku) || empty($quantity) || empty($price))
 		{
 			return new View("NULL VALUES ARE NOT ALLOWED", Response::HTTP_NOT_ACCEPTABLE);
@@ -71,7 +76,10 @@ class ProductController extends FOSRestController
 		$data->setQuantity($quantity);
 		$data->setPrice($price);
 		$em = $this->getDoctrine()->getManager();
+		
 		$em->persist($data);
+		$em->persist($category);
+		
 		$em->flush();
 		return new View("Product Added Successfully", Response::HTTP_OK);
 	}
@@ -103,7 +111,13 @@ class ProductController extends FOSRestController
 				$returnString .= "Name, ";	
 			}
 			if(!empty($category)){
-				$product->setCategory($category);
+				$categoryObj = $this->getDoctrine()->getRepository('AppBundle:Category')->findOneBy(array('name'=>$category));
+				if(empty($categoryObj)){
+					$categoryObj = new Category();
+					$categoryObj->setName($category);
+				}
+				$product->setCategory($categoryObj);
+				$sn->persist($categoryObj);
 				$returnString .= "Category, ";
 			}
 			if(!empty($quantity)){
